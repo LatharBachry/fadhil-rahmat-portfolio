@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+/* =========================================================
+   DESIGN TOKENS
+   ========================================================= */
+
+:root {
+  /* =======================================================
+     COLORS
+  ======================================================= */
+
+  --background: #00030c;
+  --foreground: #ffffff;
+
+  --muted: #e5e5e5;
+  --accent: #082e7a;
+
+  /* =======================================================
+     TYPOGRAPHY
+  ======================================================= */
+
+  --font-display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+
+  --font-sans: Arial, Helvetica, sans-serif;
+
+  /* Display Scale */
+
+  --text-display-xl: clamp(4rem, 10vw, 10rem);
+  --text-display-lg: clamp(3rem, 7vw, 7rem);
+  --text-display-md: clamp(2.25rem, 5vw, 5rem);
+  --text-display-sm: clamp(1.75rem, 3vw, 3rem);
+
+  /* Body Scale */
+
+  --text-body-lg: 1.125rem;
+  --text-body-md: 1rem;
+  --text-body-sm: 0.875rem;
+  --text-label: 0.6875rem;
+
+  /* =======================================================
+     SPACING
+  ======================================================= */
+
+  --space-section: clamp(5rem, 10vw, 10rem);
+
+  --space-container: clamp(1.25rem, 4vw, 4rem);
+
+  /* =======================================================
+     LAYOUT
+  ======================================================= */
+
+  --container-max: 1600px;
+
+  /* =======================================================
+     MOTION
+  ======================================================= */
+
+  --ease-cinematic: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+
+  background: var(--background);
+  color: var(--foreground);
+
+  font-family: var(--font-sans);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
+}
+
+/* =========================================================
+   INTERACTION
+========================================================= */
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+}
+
+button,
+a {
+  color: inherit;
+}
+
+button {
+  border: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* =========================================================
+   MEDIA
+========================================================= */
+
+img,
+video,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+/* =========================================================
+   SELECTION
+========================================================= */
+
+::selection {
+  background: var(--accent);
+  color: var(--foreground);
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 4px;
+}
+
+/* =========================================================
+   MOTION PREFERENCE
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
