@@ -20,8 +20,7 @@ export async function GET() {
   const params = new URLSearchParams({
     key: apiKey,
     q: `'${folderId}' in parents and trashed = false and mimeType contains 'video/'`,
-    fields:
-      "files(id,name,mimeType,thumbnailLink,webViewLink,createdTime,modifiedTime,size,resourceKey)",
+    fields: "files(id,name,mimeType,thumbnailLink,webViewLink,resourceKey)",
     orderBy: "name",
     pageSize: "100",
   });
@@ -33,6 +32,8 @@ export async function GET() {
 
     if (!response.ok) {
       const errorText = await response.text();
+
+      console.error("Google Drive files error:", response.status, errorText);
 
       return NextResponse.json(
         {
@@ -54,28 +55,37 @@ export async function GET() {
         mimeType: string;
         thumbnailLink?: string;
         webViewLink?: string;
-        createdTime?: string;
-        modifiedTime?: string;
-        size?: string;
         resourceKey?: string;
       }) => {
         const cleanName = file.name.replace(/\.[^/.]+$/, "");
 
+        /*
+         * FIRST underscore = separator.
+         *
+         * Example:
+         *
+         * MUSIC VIDEO_WE LIKE TO PARTY
+         *
+         * category:
+         * MUSIC VIDEO
+         *
+         * title:
+         * WE LIKE TO PARTY
+         */
         const separatorIndex = cleanName.indexOf("_");
 
-        const category =
-          separatorIndex >= 0
-            ? cleanName.slice(0, separatorIndex).trim().toUpperCase()
-            : "OTHER";
+        let category = "OTHER";
+        let title = cleanName.trim();
 
-        const title =
-          separatorIndex >= 0
-            ? cleanName.slice(separatorIndex + 1).trim()
-            : cleanName;
+        if (separatorIndex !== -1) {
+          category = cleanName.slice(0, separatorIndex).trim().toUpperCase();
 
-        const yearSource =
-          file.modifiedTime ?? file.createdTime ?? new Date().toISOString();
+          title = cleanName.slice(separatorIndex + 1).trim();
+        }
 
+        /*
+         * Thumbnail endpoint.
+         */
         const thumbnailUrl = new URL(
           `/api/projects/${file.id}/thumbnail`,
           "http://localhost",
@@ -85,13 +95,24 @@ export async function GET() {
           thumbnailUrl.searchParams.set("resourceKey", file.resourceKey);
         }
 
+        /*
+         * Video endpoint.
+         */
+        const videoUrl = new URL(
+          `/api/projects/${file.id}/video`,
+          "http://localhost",
+        );
+
+        if (file.resourceKey) {
+          videoUrl.searchParams.set("resourceKey", file.resourceKey);
+        }
+
         return {
           id: file.id,
           slug: file.id,
           title,
           category,
-          year: new Date(yearSource).getFullYear(),
-          video: `https://drive.google.com/file/d/${file.id}/preview`,
+          video: `${videoUrl.pathname}${videoUrl.search}`,
           thumbnail: `${thumbnailUrl.pathname}${thumbnailUrl.search}`,
         };
       },

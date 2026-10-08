@@ -186,7 +186,7 @@ export default function ProjectCard({
         </div>
       </button>
 
-      <div className="mt-5 flex items-start justify-between gap-6">
+      <div className="mt-5">
         <div className="min-w-0">
           <h3
             className="
@@ -218,21 +218,6 @@ export default function ProjectCard({
             {project.category}
           </p>
         </div>
-
-        <span
-          className="
-            shrink-0
-            pt-0.5
-            font-[var(--font-sans)]
-            text-[10px]
-            font-medium
-            tracking-[0.12em]
-            text-[#FFFFFF]/55
-            sm:text-[11px]
-          "
-        >
-          {project.year}
-        </span>
       </div>
     </article>
   );

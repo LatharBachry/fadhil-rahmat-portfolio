@@ -3,7 +3,6 @@ export interface Project {
   slug: string;
   title: string;
   category: string;
-  year: number;
   video: string;
   thumbnail: string;
 }
