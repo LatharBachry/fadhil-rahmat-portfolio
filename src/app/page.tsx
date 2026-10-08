@@ -6,6 +6,7 @@ import Preloader from "@/components/sections/Preloader";
 import Hero from "@/components/sections/Hero";
 import BTS from "@/components/sections/BTS";
 import SelectedWorks from "@/components/sections/SelectedWorks";
+import Footer from "@/components/layout/Footer";
 
 export default function Home() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -34,6 +35,7 @@ export default function Home() {
         <BTS />
 
         <SelectedWorks />
+        <Footer />
       </div>
     </main>
   );
