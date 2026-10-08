@@ -11,7 +11,9 @@ export async function GET() {
       {
         error: "Google Drive environment variables are missing.",
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 
@@ -26,9 +28,7 @@ export async function GET() {
 
   try {
     const response = await fetch(`${DRIVE_API_URL}?${params.toString()}`, {
-      next: {
-        revalidate: 300,
-      },
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -39,7 +39,9 @@ export async function GET() {
           error: "Failed to fetch Google Drive files.",
           details: errorText,
         },
-        { status: response.status },
+        {
+          status: response.status,
+        },
       );
     }
 
@@ -59,17 +61,38 @@ export async function GET() {
       }) => {
         const cleanName = file.name.replace(/\.[^/.]+$/, "");
 
+        const separatorIndex = cleanName.indexOf("_");
+
+        const category =
+          separatorIndex >= 0
+            ? cleanName.slice(0, separatorIndex).trim().toUpperCase()
+            : "OTHER";
+
+        const title =
+          separatorIndex >= 0
+            ? cleanName.slice(separatorIndex + 1).trim()
+            : cleanName;
+
         const yearSource =
           file.modifiedTime ?? file.createdTime ?? new Date().toISOString();
+
+        const thumbnailUrl = new URL(
+          `/api/projects/${file.id}/thumbnail`,
+          "http://localhost",
+        );
+
+        if (file.resourceKey) {
+          thumbnailUrl.searchParams.set("resourceKey", file.resourceKey);
+        }
 
         return {
           id: file.id,
           slug: file.id,
-          title: cleanName,
-          category: "Video Project",
+          title,
+          category,
           year: new Date(yearSource).getFullYear(),
           video: `https://drive.google.com/file/d/${file.id}/preview`,
-          thumbnail: `/api/projects/${file.id}/thumbnail`,
+          thumbnail: `${thumbnailUrl.pathname}${thumbnailUrl.search}`,
         };
       },
     );
@@ -82,7 +105,9 @@ export async function GET() {
       {
         error: "Unable to connect to Google Drive.",
       },
-      { status: 500 },
+      {
+        status: 500,
+      },
     );
   }
 }

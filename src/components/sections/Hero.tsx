@@ -1,10 +1,11 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 const easePremium = [0.22, 1, 0.36, 1] as const;
+
 const easeCinematic = [0.76, 0, 0.24, 1] as const;
 
 export default function Hero() {
@@ -581,7 +582,6 @@ export default function Hero() {
 
             {/* =================================================
                 CONTACT DISPLAY
-                NO HOVER EFFECT
             ================================================= */}
 
             <motion.h2
@@ -643,20 +643,43 @@ export default function Hero() {
                 sm:mt-11
               "
             >
-              <ContactItem label="Instagram" value="@fadhilrahmat" href="#" />
+              {/* INSTAGRAM */}
+
+              <ContactItem
+                label="Instagram"
+                value="@fadhillrahmat"
+                href="https://www.instagram.com/fadhillrahmat?stkn=Y3BiazJkam5kbDFu"
+              />
+
+              {/* LINKEDIN */}
 
               <ContactItem
                 label="LinkedIn"
                 value="linkedin.com/in/fadhilrahmatt"
-                href="#"
+                href="https://www.linkedin.com/in/fadhilrahmatt/"
               />
 
-              <ContactItem label="WhatsApp" value="0853 9993 7610" href="#" />
+              {/* WHATSAPP */}
+
+              <ContactItem
+                label="WhatsApp"
+                value="0853 9993 7610"
+                href="https://wa.me/6285399937610"
+              />
+
+              {/* EMAIL */}
+
+              <ContactItem
+                label="Email"
+                value="fadhilrahmatt@gmail.com"
+                href="mailto:fadhilrahmatt@gmail.com"
+              />
             </motion.div>
           </div>
 
           {/* =================================================
-              BOTTOM LINKS
+              BOTTOM CONTACT ICONS
+              DESKTOP ONLY
           ================================================= */}
 
           <motion.div
@@ -672,33 +695,111 @@ export default function Hero() {
               ease: easePremium,
             }}
             className="
+              hidden
               mt-14
-              flex
-              flex-wrap
               items-center
-              gap-x-6
-              gap-y-3
+              gap-3
               border-t
               border-[#FFFFFF]/[0.16]
               pt-5
-              text-[9px]
-              font-normal
-              uppercase
-              tracking-[0.18em]
-              text-[#FFFFFF]/[0.68]
-              sm:gap-x-7
+              sm:flex
               lg:mt-0
               lg:pt-6
             "
-            style={{
-              fontFamily: "var(--font-sans)",
-            }}
           >
-            <BottomLink href="#">Instagram</BottomLink>
+            {/* Instagram */}
 
-            <BottomLink href="#">LinkedIn</BottomLink>
+            <SocialIcon
+              href="https://www.instagram.com/fadhillrahmat?stkn=Y3BiazJkam5kbDFu"
+              label="Instagram"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                className="h-[15px] w-[15px]"
+                aria-hidden="true"
+              >
+                <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
 
-            <BottomLink href="#">WhatsApp</BottomLink>
+                <circle cx="12" cy="12" r="4" />
+
+                <circle
+                  cx="17.4"
+                  cy="6.7"
+                  r="0.8"
+                  fill="currentColor"
+                  stroke="none"
+                />
+              </svg>
+            </SocialIcon>
+
+            {/* LinkedIn */}
+
+            <SocialIcon
+              href="https://www.linkedin.com/in/fadhilrahmatt/"
+              label="LinkedIn"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-[15px] w-[15px]"
+                aria-hidden="true"
+              >
+                <rect x="4" y="4" width="16" height="16" rx="1.5" />
+
+                <path d="M8 10v6" />
+
+                <path d="M8 8.1v.1" />
+
+                <path d="M12 16v-3.2a2.2 2.2 0 0 1 4.4 0V16" />
+
+                <path d="M12 10v6" />
+              </svg>
+            </SocialIcon>
+
+            {/* WhatsApp */}
+
+            <SocialIcon href="https://wa.me/6285399937610" label="WhatsApp">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-[15px] w-[15px]"
+                aria-hidden="true"
+              >
+                <path d="M20.5 11.5a8.5 8.5 0 0 1-12.7 7.4L3.5 20l1.2-4.1A8.5 8.5 0 1 1 20.5 11.5Z" />
+
+                <path d="M8.2 8.2c.2-.4.4-.4.7-.4h.5c.2 0 .4.1.5.4l.7 1.5c.1.2.1.4 0 .6l-.5.6c-.1.1-.1.3 0 .5.4.7 1 1.3 1.7 1.7.2.1.4.1.5 0l.6-.5c.2-.1.4-.2.6 0l1.5.7c.2.1.4.3.4.5v.5c0 .3-.1.5-.4.7-.4.3-.9.5-1.4.5-1.2 0-2.7-.8-3.8-1.9-1.1-1.1-1.9-2.6-1.9-3.8 0-.5.2-1 .5-1.4Z" />
+              </svg>
+            </SocialIcon>
+
+            {/* Email */}
+
+            <SocialIcon href="mailto:EMAIL_KAMU" label="Email">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-[15px] w-[15px]"
+                aria-hidden="true"
+              >
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+
+                <path d="m4 7 8 6 8-6" />
+              </svg>
+            </SocialIcon>
           </motion.div>
         </motion.div>
       </div>
@@ -767,6 +868,8 @@ function ContactItem({ label, value, href }: ContactItemProps) {
   return (
     <motion.a
       href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       whileHover={{
         x: 4,
       }}
@@ -840,16 +943,31 @@ function ContactItem({ label, value, href }: ContactItemProps) {
 }
 
 /* ==========================================================
-   BOTTOM LINK
+   SOCIAL ICON
 ========================================================== */
 
-function BottomLink({ href, children }: { href: string; children: string }) {
+function SocialIcon({
+  href,
+  label,
+  children,
+}: {
+  href: string;
+  label: string;
+  children: ReactNode;
+}) {
   return (
     <motion.a
       href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      title={label}
       whileHover={{
-        y: -2,
-        opacity: 1,
+        y: -3,
+        scale: 1.05,
+      }}
+      whileTap={{
+        scale: 0.94,
       }}
       transition={{
         duration: 0.25,
@@ -857,26 +975,23 @@ function BottomLink({ href, children }: { href: string; children: string }) {
       }}
       className="
         group
-        relative
-        transition-opacity
+        flex
+        h-8
+        w-8
+        items-center
+        justify-center
+        rounded-full
+        border
+        border-[#FFFFFF]/[0.18]
+        text-[#FFFFFF]/[0.62]
+        transition-colors
         duration-300
+        hover:border-[#FFFFFF]/[0.42]
+        hover:bg-[#FFFFFF]/[0.04]
+        hover:text-[#FFFFFF]
       "
     >
       {children}
-
-      <span
-        className="
-          absolute
-          bottom-[-5px]
-          left-0
-          h-px
-          w-0
-          bg-[#FFFFFF]
-          transition-all
-          duration-300
-          group-hover:w-full
-        "
-      />
     </motion.a>
   );
 }

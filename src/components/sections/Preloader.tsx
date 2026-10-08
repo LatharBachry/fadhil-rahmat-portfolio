@@ -21,6 +21,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
   const [isExiting, setIsExiting] = useState(false);
   const [focusStrength, setFocusStrength] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
@@ -37,29 +38,67 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     mass: 0.7,
   });
 
-  const backgroundX = useTransform(smoothX, [-0.5, 0.5], [-8, 8]);
+  const backgroundX = useTransform(
+    smoothX,
+    [-0.5, 0.5],
+    isMobile ? [-2, 2] : [-8, 8],
+  );
 
-  const backgroundY = useTransform(smoothY, [-0.5, 0.5], [-5, 5]);
+  const backgroundY = useTransform(
+    smoothY,
+    [-0.5, 0.5],
+    isMobile ? [-1.5, 1.5] : [-5, 5],
+  );
 
   const lightX = useTransform(smoothX, [-0.5, 0.5], ["18%", "82%"]);
 
   const lightY = useTransform(smoothY, [-0.5, 0.5], ["18%", "82%"]);
 
-  // FIX:
-  // Keep useTransform at the top level.
   const ambientLight = useTransform(
     [lightX, lightY],
     ([x, y]) =>
       `radial-gradient(circle at ${x} ${y}, rgba(244,241,234,0.045), transparent 38%)`,
   );
 
-  const nameX = useTransform(smoothX, [-0.5, 0.5], [-1.5, 1.5]);
+  const nameX = useTransform(
+    smoothX,
+    [-0.5, 0.5],
+    isMobile ? [-0.5, 0.5] : [-1.5, 1.5],
+  );
 
-  const nameY = useTransform(smoothY, [-0.5, 0.5], [-1, 1]);
+  const nameY = useTransform(
+    smoothY,
+    [-0.5, 0.5],
+    isMobile ? [-0.35, 0.35] : [-1, 1],
+  );
 
-  /* =====================================================
-     VIDEO PLAYBACK
-  ===================================================== */
+  /*
+   * =====================================================
+   * MOBILE DETECTION
+   * =====================================================
+   */
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+
+    const updateMobileState = () => {
+      setIsMobile(mediaQuery.matches);
+    };
+
+    updateMobileState();
+
+    mediaQuery.addEventListener("change", updateMobileState);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateMobileState);
+    };
+  }, []);
+
+  /*
+   * =====================================================
+   * VIDEO PLAYBACK
+   * =====================================================
+   */
 
   useEffect(() => {
     const video = videoRef.current;
@@ -92,14 +131,27 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     };
   }, []);
 
-  /* =====================================================
-     POINTER INTERACTION
-  ===================================================== */
+  /*
+   * =====================================================
+   * POINTER INTERACTION
+   * =====================================================
+   */
 
   function handlePointerMove(event: ReactPointerEvent<HTMLElement>) {
     const container = containerRef.current;
 
     if (!container) return;
+
+    /*
+     * Keep mobile interaction subtle.
+     * The main cinematic movement remains desktop-focused.
+     */
+    if (isMobile) {
+      pointerX.set(0);
+      pointerY.set(0);
+      setFocusStrength(0);
+      return;
+    }
 
     const rect = container.getBoundingClientRect();
 
@@ -121,7 +173,6 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     const centerY = buttonRect.top + buttonRect.height / 2;
 
     const distanceX = event.clientX - centerX;
-
     const distanceY = event.clientY - centerY;
 
     const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
@@ -139,9 +190,11 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     setFocusStrength(0);
   }
 
-  /* =====================================================
-     ENTER
-  ===================================================== */
+  /*
+   * =====================================================
+   * ENTER
+   * =====================================================
+   */
 
   function handleEnter() {
     if (isExiting) return;
@@ -149,9 +202,11 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     setIsExiting(true);
   }
 
-  /* =====================================================
-     EXIT CALLBACK
-  ===================================================== */
+  /*
+   * =====================================================
+   * EXIT CALLBACK
+   * =====================================================
+   */
 
   useEffect(() => {
     if (!isExiting) return;
@@ -165,14 +220,16 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     };
   }, [isExiting, onComplete]);
 
-  /* =====================================================
-     CONTACT LINKS
-  ===================================================== */
+  /*
+   * =====================================================
+   * CONTACT LINKS
+   * =====================================================
+   */
 
   const contactItems = [
     {
       label: "WhatsApp",
-      href: "#",
+      href: "https://wa.me/6285399937610",
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -191,7 +248,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     },
     {
       label: "Instagram",
-      href: "#",
+      href: "https://www.instagram.com/fadhillrahmat?stkn=Y3BiazJkam5kbDFu",
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -217,7 +274,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
     },
     {
       label: "Email",
-      href: "mailto:",
+      href: "mailto:fadhilrahmatt@gmail.com",
       icon: (
         <svg
           viewBox="0 0 24 24"
@@ -241,8 +298,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
       {!isExiting && (
         <motion.section
           ref={containerRef}
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
+          initial={{
+            opacity: 1,
+          }}
+          animate={{
+            opacity: 1,
+          }}
           exit={{
             opacity: 0,
             scale: 1.025,
@@ -258,6 +319,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
             fixed
             inset-0
             z-[100]
+            h-[100dvh]
+            w-screen
             overflow-hidden
             bg-[var(--background)]
             text-[var(--foreground)]
@@ -278,15 +341,25 @@ export default function Preloader({ onComplete }: PreloaderProps) {
             aria-hidden="true"
             className="
               absolute
-              inset-0
+              left-1/2
+              top-1/2
               h-full
               w-full
+              -translate-x-1/2
+              -translate-y-1/2
               object-cover
+              object-center
             "
             style={{
               x: backgroundX,
               y: backgroundY,
-              scale: 1.04,
+
+              /*
+               * Mobile zoom:
+               * crops the source slightly so the cinematic
+               * subject fills the portrait viewport better.
+               */
+              scale: isMobile ? 4 : 1.04,
             }}
           />
 
@@ -375,7 +448,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
             className="
               absolute
               left-1/2
-              top-7
+              top-[2.25rem]
               z-20
               -translate-x-1/2
               text-center
@@ -399,15 +472,17 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
+              {/* NAME */}
+
               <span
                 className="
                   block
                   whitespace-nowrap
-                  text-[14px]
+                  text-[13px]
                   font-medium
                   uppercase
                   leading-none
-                  tracking-[0.18em]
+                  tracking-[0.16em]
                   text-[var(--foreground)]
                   sm:text-[17px]
                   sm:tracking-[0.20em]
@@ -419,6 +494,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
               >
                 Fadhil Rahmat
               </span>
+
+              {/* ROLE */}
 
               <motion.span
                 initial={{
@@ -435,13 +512,13 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                   ease: [0.22, 1, 0.36, 1],
                 }}
                 className="
-                  mt-[11px]
+                  mt-[9px]
                   block
-                  text-[8px]
+                  text-[7px]
                   font-normal
                   uppercase
                   leading-none
-                  tracking-[0.40em]
+                  tracking-[0.38em]
                   text-[var(--foreground)]/[0.64]
                   sm:mt-[12px]
                   sm:text-[9px]
@@ -454,13 +531,15 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 Editor
               </motion.span>
 
+              {/* MICRO DIVIDER */}
+
               <motion.span
                 initial={{
                   width: 0,
                   opacity: 0,
                 }}
                 animate={{
-                  width: 24,
+                  width: 20,
                   opacity: 0.3,
                 }}
                 transition={{
@@ -470,10 +549,11 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 }}
                 className="
                   mx-auto
-                  mt-[11px]
+                  mt-[10px]
                   block
                   h-px
                   bg-[var(--foreground)]/[0.35]
+                  sm:mt-[11px]
                 "
               />
             </motion.div>
@@ -506,8 +586,12 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 rounded-full
               "
               animate={{
-                width: 210 + focusStrength * 90,
-                height: 210 + focusStrength * 90,
+                width:
+                  (isMobile ? 175 : 210) + focusStrength * (isMobile ? 55 : 90),
+
+                height:
+                  (isMobile ? 175 : 210) + focusStrength * (isMobile ? 55 : 90),
+
                 opacity: 0.012 + focusStrength * 0.05,
               }}
               transition={{
@@ -530,8 +614,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 group
                 relative
                 flex
-                h-[144px]
-                w-[144px]
+                h-[116px]
+                w-[116px]
                 items-center
                 justify-center
                 rounded-full
@@ -541,6 +625,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
               "
               animate={{
                 y: focusStrength > 0.5 ? -4 : [0, -2, 0],
+
                 scale: 1 + focusStrength * 0.035,
               }}
               transition={{
@@ -555,6 +640,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                         repeat: Infinity,
                         ease: "easeInOut",
                       },
+
                 scale: {
                   duration: 0.4,
                   ease: [0.22, 1, 0.36, 1],
@@ -565,7 +651,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 y: 1,
               }}
             >
-              {/* Outer glass edge */}
+              {/* OUTER GLASS EDGE */}
 
               <motion.span
                 className="
@@ -579,6 +665,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                     focusStrength > 0.7
                       ? "rgba(244,241,234,0.72)"
                       : "rgba(244,241,234,0.40)",
+
                   boxShadow:
                     focusStrength > 0.7
                       ? "0 12px 40px rgba(8,10,15,0.12), inset 0 1px 2px rgba(244,241,234,0.32)"
@@ -589,7 +676,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 }}
               />
 
-              {/* Translucent glass */}
+              {/* TRANSLUCENT GLASS */}
 
               <motion.span
                 className="
@@ -606,6 +693,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                     focusStrength > 0.7
                       ? "rgba(244,241,234,0.055)"
                       : "rgba(244,241,234,0.025)",
+
                   borderColor:
                     focusStrength > 0.7
                       ? "rgba(244,241,234,0.20)"
@@ -616,20 +704,21 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 }}
               />
 
-              {/* Inner ring */}
+              {/* INNER RING */}
 
               <span
                 className="
                   pointer-events-none
                   absolute
-                  inset-[8px]
+                  inset-[7px]
                   rounded-full
                   border
                   border-[var(--foreground)]/[0.08]
+                  sm:inset-[8px]
                 "
               />
 
-              {/* Top reflection */}
+              {/* TOP REFLECTION */}
 
               <motion.span
                 className="
@@ -652,20 +741,22 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 }}
               />
 
-              {/* Top edge light */}
+              {/* TOP EDGE LIGHT */}
 
               <motion.span
                 className="
                   pointer-events-none
                   absolute
                   left-1/2
-                  top-[8px]
+                  top-[7px]
                   h-px
                   -translate-x-1/2
                   rounded-full
+                  sm:top-[8px]
                 "
                 animate={{
-                  width: 30 + focusStrength * 30,
+                  width: 24 + focusStrength * 30,
+
                   opacity: 0.16 + focusStrength * 0.24,
                 }}
                 transition={{
@@ -684,7 +775,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                   relative
                   z-10
                   font-[var(--font-display)]
-                  text-[16px]
+                  text-[14px]
                   font-normal
                   uppercase
                   leading-none
@@ -694,7 +785,9 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 "
                 animate={{
                   letterSpacing: `${0.08 + focusStrength * 0.025}em`,
+
                   opacity: 0.9 + focusStrength * 0.08,
+
                   scale: 1 + focusStrength * 0.01,
                 }}
                 transition={{
@@ -705,18 +798,20 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 Enter
               </motion.span>
 
-              {/* Micro underline */}
+              {/* MICRO UNDERLINE */}
 
               <motion.span
                 className="
                   absolute
-                  bottom-[34px]
+                  bottom-[27px]
                   left-1/2
                   h-px
                   -translate-x-1/2
+                  sm:bottom-[34px]
                 "
                 animate={{
-                  width: 10 + focusStrength * 18,
+                  width: 8 + focusStrength * 18,
+
                   opacity: 0.1 + focusStrength * 0.2,
                 }}
                 transition={{
@@ -728,15 +823,16 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 }}
               />
 
-              {/* Light sweep */}
+              {/* LIGHT SWEEP */}
 
               <span
                 className="
                   pointer-events-none
                   absolute
-                  inset-[8px]
+                  inset-[7px]
                   overflow-hidden
                   rounded-full
+                  sm:inset-[8px]
                 "
               >
                 <motion.span
@@ -763,7 +859,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                 />
               </span>
 
-              {/* Click ripple */}
+              {/* CLICK RIPPLE */}
 
               <motion.span
                 className="
@@ -818,7 +914,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
               -translate-x-1/2
               items-center
               gap-3
-              pb-[max(1.5rem,env(safe-area-inset-bottom))]
+              pb-[max(1.75rem,env(safe-area-inset-bottom))]
               sm:bottom-8
               sm:gap-4
               sm:pb-0

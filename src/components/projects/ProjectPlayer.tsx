@@ -8,18 +8,6 @@ interface ProjectPlayerProps {
   onClose: () => void;
 }
 
-function getGoogleDriveEmbedUrl(url: string) {
-  const match = url.match(/\/d\/([^/]+)/);
-
-  if (!match) {
-    return url;
-  }
-
-  const fileId = match[1];
-
-  return `https://drive.google.com/file/d/${fileId}/preview`;
-}
-
 export default function ProjectPlayer({
   project,
   onClose,
@@ -50,7 +38,7 @@ export default function ProjectPlayer({
     return null;
   }
 
-  const embedUrl = getGoogleDriveEmbedUrl(project.video);
+  const videoUrl = `/api/projects/${project.id}/video`;
 
   return (
     <div
@@ -61,7 +49,8 @@ export default function ProjectPlayer({
         flex
         items-center
         justify-center
-        bg-[#00030C]/[0.97]
+        overflow-y-auto
+        bg-[#00030C]
         px-4
         py-6
         sm:px-6
@@ -86,30 +75,29 @@ export default function ProjectPlayer({
           event.stopPropagation();
         }}
       >
-        {/* =====================================================
-            TOP BAR
-        ===================================================== */}
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div
           className="
             mb-3
             flex
-            min-h-[42px]
-            items-center
+            min-h-[40px]
+            items-start
             justify-between
-            gap-6
+            gap-4
+            sm:min-h-[42px]
           "
         >
-          {/* PROJECT INFO */}
-
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div
               className="
                 flex
                 items-center
                 gap-3
                 font-[var(--font-sans)]
-                text-[8px]
+                text-[7px]
                 font-medium
                 uppercase
                 leading-none
@@ -120,22 +108,25 @@ export default function ProjectPlayer({
             >
               <span>{project.category}</span>
 
-              <span className="h-px w-4 bg-[#FFFFFF]/20" />
+              <span className="h-px w-3 bg-[#FFFFFF]/20 sm:w-4" />
 
               <span>{project.year}</span>
             </div>
 
             <h2
               className="
-                mt-2
+                mt-1.5
+                max-w-[calc(100vw-100px)]
                 truncate
                 font-[var(--font-sans)]
-                text-[12px]
+                text-[10px]
                 font-medium
                 uppercase
                 leading-none
                 tracking-[0.02em]
                 text-[#FFFFFF]
+                sm:mt-2
+                sm:max-w-none
                 sm:text-[14px]
               "
             >
@@ -143,7 +134,7 @@ export default function ProjectPlayer({
             </h2>
           </div>
 
-          {/* CLOSE BUTTON */}
+          {/* CLOSE */}
 
           <button
             type="button"
@@ -192,9 +183,9 @@ export default function ProjectPlayer({
           </button>
         </div>
 
-        {/* =====================================================
-            VIDEO PLAYER
-        ===================================================== */}
+        {/* =================================================
+            VIDEO
+        ================================================= */}
 
         <div
           className="
@@ -205,21 +196,23 @@ export default function ProjectPlayer({
             aspect-video
           "
         >
-          <iframe
-            src={embedUrl}
-            title={project.title}
-            allow="autoplay; fullscreen"
-            allowFullScreen
+          <video
+            src={videoUrl}
+            poster={project.thumbnail}
+            controls
+            playsInline
+            preload="metadata"
             className="
               absolute
               inset-0
               h-full
               w-full
-              border-0
+              object-contain
+              bg-black
             "
           />
 
-          {/* Subtle cinematic frame */}
+          {/* Subtle frame */}
 
           <div
             className="
@@ -233,16 +226,18 @@ export default function ProjectPlayer({
           />
         </div>
 
-        {/* =====================================================
-            BOTTOM META
-        ===================================================== */}
+        {/* =================================================
+            FOOTER
+            Desktop only
+        ================================================= */}
 
         <div
           className="
             mt-3
-            flex
+            hidden
             items-center
             justify-between
+            sm:flex
           "
         >
           <div

@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 
+const DRIVE_API_URL = "https://www.googleapis.com/drive/v3/files";
+
 interface RouteContext {
   params: Promise<{
     id: string;
   }>;
 }
 
-export async function GET(_request: Request, { params }: RouteContext) {
+export async function GET(request: Request, { params }: RouteContext) {
   const { id } = await params;
 
   const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
@@ -17,54 +19,84 @@ export async function GET(_request: Request, { params }: RouteContext) {
     });
   }
 
-  const paramsUrl = new URLSearchParams({
-    key: apiKey,
-    fields: "id,name,mimeType,thumbnailLink,resourceKey",
-  });
+  if (!id) {
+    return new NextResponse("Project ID is missing.", {
+      status: 400,
+    });
+  }
+
+  const requestUrl = new URL(request.url);
+  const resourceKey = requestUrl.searchParams.get("resourceKey");
+
+  const metadataUrl = new URL(`${DRIVE_API_URL}/${id}`);
+
+  metadataUrl.searchParams.set("key", apiKey);
+
+  metadataUrl.searchParams.set(
+    "fields",
+    "id,name,mimeType,thumbnailLink,resourceKey",
+  );
 
   try {
-    const metadataResponse = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${id}?${paramsUrl.toString()}`,
-      {
-        next: {
-          revalidate: 3600,
-        },
-      },
-    );
+    const metadataHeaders: HeadersInit = {};
+
+    if (resourceKey) {
+      metadataHeaders["X-Goog-Drive-Resource-Keys"] = `${id}/${resourceKey}`;
+    }
+
+    const metadataResponse = await fetch(metadataUrl.toString(), {
+      method: "GET",
+      headers: metadataHeaders,
+      cache: "no-store",
+    });
 
     if (!metadataResponse.ok) {
-      return new NextResponse("Unable to retrieve file metadata.", {
+      console.error(
+        "Google Drive metadata error:",
+        metadataResponse.status,
+        await metadataResponse.text(),
+      );
+
+      return new NextResponse("Unable to retrieve project metadata.", {
         status: metadataResponse.status,
       });
     }
 
-    const file = await metadataResponse.json();
+    const metadata = await metadataResponse.json();
 
-    if (!file.thumbnailLink) {
-      return new NextResponse("Thumbnail not available.", {
+    /*
+     * Google Drive only provides thumbnailLink
+     * when the requesting application can access
+     * the thumbnail.
+     */
+    if (!metadata.thumbnailLink) {
+      return new NextResponse("Thumbnail is not available for this file.", {
         status: 404,
       });
     }
 
-    const thumbnailResponse = await fetch(file.thumbnailLink);
+    const thumbnailResponse = await fetch(metadata.thumbnailLink, {
+      cache: "no-store",
+    });
 
-    if (!thumbnailResponse.ok) {
-      return new NextResponse("Unable to retrieve thumbnail.", {
-        status: thumbnailResponse.status,
+    if (!thumbnailResponse.ok || !thumbnailResponse.body) {
+      return new NextResponse("Unable to retrieve project thumbnail.", {
+        status: thumbnailResponse.status || 404,
       });
     }
 
-    const contentType =
-      thumbnailResponse.headers.get("content-type") ?? "image/jpeg";
+    const headers = new Headers();
 
-    const imageBuffer = await thumbnailResponse.arrayBuffer();
+    headers.set(
+      "Content-Type",
+      thumbnailResponse.headers.get("content-type") ?? "image/jpeg",
+    );
 
-    return new NextResponse(imageBuffer, {
+    headers.set("Cache-Control", "public, max-age=3600, s-maxage=86400");
+
+    return new NextResponse(thumbnailResponse.body, {
       status: 200,
-      headers: {
-        "Content-Type": contentType,
-        "Cache-Control": "public, max-age=3600, s-maxage=86400",
-      },
+      headers,
     });
   } catch (error) {
     console.error("Google Drive thumbnail error:", error);

@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import type { Project } from "@/types/project";
 
 interface ProjectCardProps {
@@ -11,9 +15,10 @@ export default function ProjectCard({
   index,
   onOpen,
 }: ProjectCardProps) {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <article className="group">
-      {/* Project Preview */}
       <button
         type="button"
         onClick={onOpen}
@@ -36,11 +41,11 @@ export default function ProjectCard({
             bg-[#080A0F]
           "
         >
-          {/* Project Thumbnail */}
-          {project.thumbnail && (
+          {project.thumbnail && !imageError ? (
             <img
               src={project.thumbnail}
               alt={project.title}
+              onError={() => setImageError(true)}
               className="
                 absolute
                 inset-0
@@ -53,9 +58,64 @@ export default function ProjectCard({
                 group-hover:scale-[1.025]
               "
             />
+          ) : (
+            <div
+              className="
+                absolute
+                inset-0
+                flex
+                flex-col
+                justify-between
+                bg-[#080A0F]
+                p-5
+                sm:p-6
+              "
+            >
+              <div
+                className="
+                  h-px
+                  w-8
+                  bg-[#FFFFFF]/30
+                  transition-all
+                  duration-500
+                  group-hover:w-14
+                "
+              />
+
+              <div>
+                <p
+                  className="
+                    mb-2
+                    font-[var(--font-sans)]
+                    text-[8px]
+                    font-medium
+                    uppercase
+                    tracking-[0.18em]
+                    text-[#FFFFFF]/35
+                  "
+                >
+                  {project.category}
+                </p>
+
+                <p
+                  className="
+                    max-w-[85%]
+                    font-[var(--font-sans)]
+                    text-[12px]
+                    font-medium
+                    uppercase
+                    leading-[1.2]
+                    tracking-[0.02em]
+                    text-[#FFFFFF]/70
+                    sm:text-[14px]
+                  "
+                >
+                  {project.title}
+                </p>
+              </div>
+            </div>
           )}
 
-          {/* Subtle Overlay */}
           <div
             className="
               pointer-events-none
@@ -68,7 +128,6 @@ export default function ProjectCard({
             "
           />
 
-          {/* Project Index */}
           <div
             className="
               absolute
@@ -88,7 +147,6 @@ export default function ProjectCard({
             {String(index + 1).padStart(2, "0")}
           </div>
 
-          {/* Open Indicator */}
           <div
             className="
               absolute
@@ -128,7 +186,6 @@ export default function ProjectCard({
         </div>
       </button>
 
-      {/* Project Information */}
       <div className="mt-5 flex items-start justify-between gap-6">
         <div className="min-w-0">
           <h3
