@@ -1,8 +1,12 @@
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 
 const DRIVE_API_URL = "https://www.googleapis.com/drive/v3/files";
 
 export async function GET() {
+  // Jalankan pengambilan data saat request masuk,
+  // bukan selama proses prerender.
+  await connection();
+
   const apiKey = process.env.GOOGLE_DRIVE_API_KEY;
   const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
 
@@ -11,9 +15,7 @@ export async function GET() {
       {
         error: "Google Drive environment variables are missing.",
       },
-      {
-        status: 500,
-      },
+      { status: 500 },
     );
   }
 
@@ -40,9 +42,7 @@ export async function GET() {
           error: "Failed to fetch Google Drive files.",
           details: errorText,
         },
-        {
-          status: response.status,
-        },
+        { status: response.status },
       );
     }
 
@@ -58,8 +58,6 @@ export async function GET() {
         resourceKey?: string;
       }) => {
         const cleanName = file.name.replace(/\.[^/.]+$/, "");
-
-        // Underscore pertama memisahkan kategori dan judul.
         const separatorIndex = cleanName.indexOf("_");
 
         let category = "OTHER";
@@ -71,33 +69,17 @@ export async function GET() {
           title = cleanName.slice(separatorIndex + 1).trim();
         }
 
-        // Thumbnail endpoint.
-        const thumbnailUrl = new URL(
-          `/api/projects/${file.id}/thumbnail`,
-          "http://localhost",
-        );
-
-        if (file.resourceKey) {
-          thumbnailUrl.searchParams.set("resourceKey", file.resourceKey);
-        }
-
-        // Video endpoint.
-        const videoUrl = new URL(
-          `/api/projects/${file.id}/video`,
-          "http://localhost",
-        );
-
-        if (file.resourceKey) {
-          videoUrl.searchParams.set("resourceKey", file.resourceKey);
-        }
+        const resourceKeyQuery = file.resourceKey
+          ? `?resourceKey=${encodeURIComponent(file.resourceKey)}`
+          : "";
 
         return {
           id: file.id,
           slug: file.id,
           title,
           category,
-          video: `${videoUrl.pathname}${videoUrl.search}`,
-          thumbnail: `${thumbnailUrl.pathname}${thumbnailUrl.search}`,
+          video: `/api/projects/${file.id}/video${resourceKeyQuery}`,
+          thumbnail: `/api/projects/${file.id}/thumbnail${resourceKeyQuery}`,
         };
       },
     );
@@ -107,12 +89,8 @@ export async function GET() {
     console.error("Google Drive API error:", error);
 
     return NextResponse.json(
-      {
-        error: "Unable to connect to Google Drive.",
-      },
-      {
-        status: 500,
-      },
+      { error: "Unable to connect to Google Drive." },
+      { status: 500 },
     );
   }
 }
