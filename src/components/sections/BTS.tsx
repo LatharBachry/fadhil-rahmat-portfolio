@@ -162,7 +162,7 @@ export default function BTS() {
         id="bts"
         className="
           overflow-hidden
-          bg-[#00030C]
+          bg-[var(--background)]
           py-20
           text-[#FFFFFF]
           md:py-24

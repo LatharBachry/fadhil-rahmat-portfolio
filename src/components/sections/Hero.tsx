@@ -530,7 +530,7 @@ export default function Hero() {
             min-h-[620px]
             flex-col
             justify-between
-            bg-[#00030C]
+            bg-[var(--background)]
             px-6
             py-8
             text-[#FFFFFF]
