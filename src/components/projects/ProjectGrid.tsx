@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { Project } from "@/types/project";
 import ProjectCard from "./ProjectCard";
-import ProjectFilter from "./ProjectFilter";
 import ProjectPlayer from "./ProjectPlayer";
 
 export default function ProjectGrid() {
@@ -15,7 +14,7 @@ export default function ProjectGrid() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadProjects = async () => {
+    async function loadProjects() {
       try {
         const response = await fetch("/api/projects", {
           cache: "no-store",
@@ -26,84 +25,43 @@ export default function ProjectGrid() {
         }
 
         const data: Project[] = await response.json();
-
-        /*
-         * Parse category from the FIRST underscore.
-         *
-         * Example:
-         *
-         * SHORT MOVIE_PLN MOBILE
-         * -> category: SHORT MOVIE
-         * -> title: PLN MOBILE
-         *
-         * MUSIC VIDEO_SALMA_MAHA BENAR
-         * -> category: MUSIC VIDEO
-         * -> title: SALMA_MAHA BENAR
-         */
-        const parsedProjects = data.map((project) => {
-          const separatorIndex = project.title.indexOf("_");
-
-          if (separatorIndex === -1) {
-            return {
-              ...project,
-              category: project.category?.trim().toUpperCase() || "OTHER",
-              title: project.title.trim(),
-            };
-          }
-
-          return {
-            ...project,
-            category: project.title
-              .slice(0, separatorIndex)
-              .trim()
-              .toUpperCase(),
-            title: project.title.slice(separatorIndex + 1).trim(),
-          };
-        });
-
-        /*
-         * Sort title from Z → A.
-         */
-        const sortedProjects = [...parsedProjects].sort((a, b) =>
-          b.title.localeCompare(a.title, undefined, {
-            numeric: true,
-            sensitivity: "base",
-          }),
-        );
-
-        setProjects(sortedProjects);
-      } catch (error) {
-        console.error("Project loading error:", error);
+        setProjects(data);
+      } catch (err) {
+        console.error("Project loading error:", err);
         setError("Unable to load projects.");
       } finally {
         setIsLoading(false);
       }
-    };
+    }
 
     loadProjects();
   }, []);
 
-  /*
-   * Build category list automatically
-   * from all available projects.
-   */
-  const categories = useMemo(() => {
-    return Array.from(
-      new Set(
-        projects
-          .map((project) => project.category.trim().toUpperCase())
-          .filter(Boolean),
-      ),
-    ).sort((a, b) =>
-      a.localeCompare(b, undefined, {
-        sensitivity: "base",
-      }),
-    );
-  }, [projects]);
+  const categories = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          projects
+            .map((project) => project.category.trim().toUpperCase())
+            .filter(Boolean),
+        ),
+      ).sort((a, b) => a.localeCompare(b)),
+    [projects],
+  );
 
-  /*
-   * Filter projects by selected category.
-   */
+  const filterCategories = useMemo(
+    () => [
+      { name: "ALL", count: projects.length },
+      ...categories.map((category) => ({
+        name: category,
+        count: projects.filter(
+          (project) => project.category.trim().toUpperCase() === category,
+        ).length,
+      })),
+    ],
+    [categories, projects],
+  );
+
   const filteredProjects = useMemo(() => {
     if (activeCategory === "ALL") {
       return projects;
@@ -116,51 +74,31 @@ export default function ProjectGrid() {
 
   if (isLoading) {
     return (
-      <div className="font-[var(--font-sans)] text-[10px] uppercase tracking-[0.16em] text-[#FFFFFF]/50">
+      <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">
         Loading Projects...
-      </div>
+      </p>
     );
   }
 
   if (error) {
     return (
-      <div className="font-[var(--font-sans)] text-[10px] uppercase tracking-[0.16em] text-[#FFFFFF]/50">
+      <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">
         {error}
-      </div>
+      </p>
     );
   }
 
   return (
     <>
-      {/* SECTION HEADER */}
-      <div
-        className="
-          mb-14
-          flex
-          flex-col
-          gap-8
-          sm:mb-16
-          lg:mb-20
-          lg:flex-row
-          lg:items-end
-          lg:justify-between
-          lg:gap-12
-        "
-      >
-        <div className="shrink-0">
-          <p className="mb-4 font-[var(--font-sans)] text-[9px] font-medium uppercase leading-none tracking-[0.20em] text-[#FFFFFF]/70 sm:text-[10px]">
+      {/* HEADER */}
+      <section className="mb-10 sm:mb-12 lg:mb-14">
+        <div className="mb-10 sm:mb-12">
+          <p className="mb-4 font-[var(--font-sans)] text-[9px] font-medium uppercase tracking-[0.2em] text-white/70 sm:text-[10px]">
             All Projects
           </p>
 
           <h2
-            className="
-              text-[clamp(3rem,5vw,5rem)]
-              font-normal
-              uppercase
-              leading-[0.86]
-              tracking-[-0.02em]
-              text-[#FFFFFF]
-            "
+            className="text-[clamp(3rem,5vw,5rem)] font-normal uppercase leading-[0.86] tracking-[-0.02em] text-white"
             style={{ fontFamily: "var(--font-display)" }}
           >
             ALL
@@ -169,38 +107,89 @@ export default function ProjectGrid() {
           </h2>
         </div>
 
-        {/* CATEGORY FILTER */}
-        {categories.length > 0 && (
-          <ProjectFilter
-            categories={categories}
-            activeCategory={activeCategory}
-            onChange={setActiveCategory}
-          />
-        )}
-      </div>
+        {/* CATEGORY BUTTONS */}
+        <div className="w-full min-w-0">
+          <div className="flex w-full min-w-0 flex-wrap gap-2 sm:gap-2.5">
+            {filterCategories.map((category) => {
+              const isActive = activeCategory === category.name;
+
+              return (
+                <button
+                  key={category.name}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => setActiveCategory(category.name)}
+                  className={`
+                    group inline-flex min-h-[36px] shrink-0
+                    items-center justify-center gap-2.5
+                    border px-3 py-2
+                    font-[var(--font-sans)]
+                    text-[9px] font-medium uppercase
+                    tracking-[0.08em]
+                    transition-colors duration-300 ease-out
+                    focus-visible:outline focus-visible:outline-2
+                    focus-visible:outline-offset-2 focus-visible:outline-white
+                    ${
+                      isActive
+                        ? "border-white bg-white text-black"
+                        : "border-white/35 bg-transparent text-white hover:border-white hover:bg-white hover:text-black"
+                    }
+                  `}
+                >
+                  <span
+                    className={`whitespace-nowrap ${
+                      isActive
+                        ? "!text-black"
+                        : "text-white group-hover:!text-black"
+                    }`}
+                  >
+                    {category.name}
+                  </span>
+
+                  <span
+                    className={`
+                      text-[11px] font-bold leading-none tabular-nums
+                      transition-colors duration-300
+                      ${
+                        isActive
+                          ? "!text-black"
+                          : "text-white/80 group-hover:!text-black"
+                      }
+                    `}
+                  >
+                    {category.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ACTIVE PROJECT COUNT — RIGHT SIDE */}
+        <div className="mt-5 flex items-center justify-end border-t border-white/15 pt-4">
+          <p
+            aria-live="polite"
+            className="flex items-baseline gap-2 font-[var(--font-sans)] text-[9px] uppercase tracking-[0.12em] text-white/50 sm:text-[10px]"
+          >
+            <span className="text-[24px] font-bold leading-none tracking-[-0.04em] text-white tabular-nums sm:text-[30px]">
+              {filteredProjects.length}
+            </span>
+            <span>Projects</span>
+          </p>
+        </div>
+      </section>
 
       {/* PROJECT GRID */}
-      {projects.length === 0 ? (
-        <div className="font-[var(--font-sans)] text-[10px] uppercase tracking-[0.16em] text-[#FFFFFF]/50">
+      {filteredProjects.length === 0 ? (
+        <p className="text-[10px] uppercase tracking-[0.16em] text-white/50">
           No Projects Available.
-        </div>
-      ) : filteredProjects.length === 0 ? (
-        <div className="font-[var(--font-sans)] text-[10px] uppercase tracking-[0.16em] text-[#FFFFFF]/50">
-          No Projects In This Category.
-        </div>
+        </p>
       ) : (
         <div
           className="
-            grid
-            grid-cols-1
-            gap-x-5
-            gap-y-14
-            sm:grid-cols-2
-            sm:gap-x-6
-            sm:gap-y-16
-            lg:grid-cols-3
-            lg:gap-x-7
-            lg:gap-y-20
+            grid grid-cols-1 gap-x-5 gap-y-14
+            sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16
+            lg:grid-cols-3 lg:gap-x-7 lg:gap-y-20
           "
         >
           {filteredProjects.map((project, index) => (
@@ -214,6 +203,7 @@ export default function ProjectGrid() {
         </div>
       )}
 
+      {/* PROJECT PLAYER */}
       <ProjectPlayer
         project={selectedProject}
         onClose={() => setSelectedProject(null)}

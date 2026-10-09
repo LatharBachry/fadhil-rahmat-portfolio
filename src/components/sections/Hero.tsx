@@ -85,7 +85,7 @@ export default function Hero() {
       onPointerLeave={handlePointerLeave}
       className="
         overflow-hidden
-        bg-[#00030C]
+        bg-[#FFFFFF]
         text-[#FFFFFF]
       "
     >
@@ -123,7 +123,7 @@ export default function Hero() {
             bg-[#FFFFFF]
             px-6
             py-8
-            text-[#00030C]
+            text-[#000000]
             sm:px-10
             sm:py-10
             lg:min-h-screen
@@ -172,7 +172,7 @@ export default function Hero() {
                 style={{
                   fontFamily: "var(--font-display)",
                   fontWeight: 400,
-                  color: "#00030C",
+                  color: "#000000",
                 }}
               >
                 Fadhil Rahmat
@@ -186,7 +186,7 @@ export default function Hero() {
                   uppercase
                   leading-none
                   tracking-[0.12em]
-                  text-[#00030C]/[0.58]
+                  text-[#000000]/[0.58]
                   sm:text-[12px]
                 "
                 style={{
@@ -227,7 +227,7 @@ export default function Hero() {
                   font-medium
                   leading-[1.25]
                   tracking-[-0.01em]
-                  text-[#00030C]
+                  text-[#000000]
                   sm:text-[16px]
                 "
                 style={{
@@ -245,7 +245,7 @@ export default function Hero() {
                   font-normal
                   leading-[1.65]
                   tracking-[-0.005em]
-                  text-[#00030C]/[0.64]
+                  text-[#000000]/[0.64]
                   sm:text-[13px]
                 "
                 style={{
@@ -287,7 +287,7 @@ export default function Hero() {
                   uppercase
                   leading-none
                   tracking-[0.16em]
-                  text-[#00030C]/[0.72]
+                  text-[#000000]/[0.72]
                   sm:text-[10px]
                 "
                 style={{
@@ -305,7 +305,7 @@ export default function Hero() {
                   font-normal
                   leading-[1.45]
                   tracking-[-0.002em]
-                  text-[#00030C]/[0.62]
+                  text-[#000000]/[0.62]
                   sm:text-[12px]
                 "
                 style={{
@@ -351,7 +351,7 @@ export default function Hero() {
                   uppercase
                   leading-none
                   tracking-[0.16em]
-                  text-[#00030C]/[0.72]
+                  text-[#000000]/[0.72]
                   sm:text-[10px]
                 "
                 style={{
@@ -418,7 +418,7 @@ export default function Hero() {
               font-medium
               uppercase
               tracking-[0.20em]
-              text-[#00030C]/[0.64]
+              text-[#000000]/[0.64]
               lg:mt-0
             "
             style={{
@@ -439,7 +439,7 @@ export default function Hero() {
                 block
                 h-px
                 w-12
-                bg-[#00030C]/[0.48]
+                bg-[#000000]/[0.48]
               "
             />
 
@@ -457,14 +457,14 @@ export default function Hero() {
             aspect-[4/5]
             w-full
             overflow-hidden
-            bg-[#00030C]
+            bg-[var(--background)]
             sm:aspect-[3/4]
             lg:aspect-auto
             lg:min-h-screen
           "
         >
           <motion.img
-            src="/media/images/hero/fadhil-editor.jpg"
+            src="/media/images/hero/fadhil-editor.png"
             alt="Fadhil Rahmat working as a video editor"
             initial={{
               opacity: 0,
@@ -502,7 +502,7 @@ export default function Hero() {
               pointer-events-none
               absolute
               inset-0
-              bg-[#00030C]/[0.08]
+              bg-[#000000]/[0.08]
             "
           />
         </div>
