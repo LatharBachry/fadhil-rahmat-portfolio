@@ -59,19 +59,7 @@ export async function GET() {
       }) => {
         const cleanName = file.name.replace(/\.[^/.]+$/, "");
 
-        /*
-         * FIRST underscore = separator.
-         *
-         * Example:
-         *
-         * MUSIC VIDEO_WE LIKE TO PARTY
-         *
-         * category:
-         * MUSIC VIDEO
-         *
-         * title:
-         * WE LIKE TO PARTY
-         */
+        // Underscore pertama memisahkan kategori dan judul.
         const separatorIndex = cleanName.indexOf("_");
 
         let category = "OTHER";
@@ -83,9 +71,7 @@ export async function GET() {
           title = cleanName.slice(separatorIndex + 1).trim();
         }
 
-        /*
-         * Thumbnail endpoint.
-         */
+        // Thumbnail endpoint.
         const thumbnailUrl = new URL(
           `/api/projects/${file.id}/thumbnail`,
           "http://localhost",
@@ -95,9 +81,7 @@ export async function GET() {
           thumbnailUrl.searchParams.set("resourceKey", file.resourceKey);
         }
 
-        /*
-         * Video endpoint.
-         */
+        // Video endpoint.
         const videoUrl = new URL(
           `/api/projects/${file.id}/video`,
           "http://localhost",

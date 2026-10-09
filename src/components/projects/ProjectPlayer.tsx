@@ -93,24 +93,20 @@ export default function ProjectPlayer({
           <div className="min-w-0 flex-1">
             <div
               className="
-                flex
-                items-center
-                gap-3
-                font-[var(--font-sans)]
-                text-[7px]
-                font-medium
-                uppercase
-                leading-none
-                tracking-[0.18em]
-                text-[#FFFFFF]/45
-                sm:text-[9px]
-              "
+    flex
+    items-center
+    gap-3
+    font-[var(--font-sans)]
+    text-[7px]
+    font-medium
+    uppercase
+    leading-none
+    tracking-[0.18em]
+    text-[#FFFFFF]/45
+    sm:text-[9px]
+  "
             >
               <span>{project.category}</span>
-
-              <span className="h-px w-3 bg-[#FFFFFF]/20 sm:w-4" />
-
-              <span>{project.year}</span>
             </div>
 
             <h2
