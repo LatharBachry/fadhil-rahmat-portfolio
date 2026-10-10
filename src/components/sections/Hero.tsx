@@ -193,7 +193,7 @@ export default function Hero() {
                   fontFamily: "var(--font-sans)",
                 }}
               >
-                Professional Editor
+                Professional Video Editor
               </p>
             </motion.div>
 
@@ -252,7 +252,7 @@ export default function Hero() {
                   fontFamily: "var(--font-sans)",
                 }}
               >
-                for brands, musicians short films documentary and contents
+                for brands, musicians, short films, documentary and contents
               </p>
             </motion.div>
 

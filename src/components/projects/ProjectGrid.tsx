@@ -93,9 +93,6 @@ export default function ProjectGrid() {
       {/* HEADER */}
       <section className="mb-10 sm:mb-12 lg:mb-14">
         <div className="mb-10 sm:mb-12">
-          <p className="mb-4 font-[var(--font-sans)] text-[9px] font-medium uppercase tracking-[0.2em] text-white/70 sm:text-[10px]">
-            All Projects
-          </p>
 
           <h2
             className="text-[clamp(3rem,5vw,5rem)] font-normal uppercase leading-[0.86] tracking-[-0.02em] text-white"

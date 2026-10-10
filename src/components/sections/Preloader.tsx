@@ -18,6 +18,8 @@ export default function Preloader({ onComplete }: PreloaderProps) {
   const containerRef = useRef<HTMLElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const hasEnteredRef = useRef(false);
 
   const [isExiting, setIsExiting] = useState(false);
   const [focusStrength, setFocusStrength] = useState(0);
@@ -133,6 +135,92 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
   /*
    * =====================================================
+   * PRELOADER MUSIC
+   * =====================================================
+   */
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio) return;
+
+    let playRequestInFlight = false;
+    audio.volume = 0.5;
+
+    const tryPlayMusic = async () => {
+      if (hasEnteredRef.current || !audio.paused || playRequestInFlight) {
+        return;
+      }
+
+      playRequestInFlight = true;
+
+      try {
+        await audio.play();
+
+        // ENTER may have been pressed while play() was pending.
+        if (hasEnteredRef.current) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      } catch {
+        // Autoplay may be blocked until a permitted user gesture.
+        // Keep listeners active so a later gesture can retry.
+      } finally {
+        playRequestInFlight = false;
+      }
+    };
+
+    const handleInteraction = () => {
+      if (!hasEnteredRef.current) {
+        void tryPlayMusic();
+      }
+    };
+
+    // Best-effort autoplay on mount. Browsers may block this.
+    void tryPlayMusic();
+
+    // Desktop: keep retrying on pointer movement, plus direct interactions.
+    document.addEventListener("pointermove", handleInteraction, {
+      passive: true,
+    });
+    document.addEventListener("pointerdown", handleInteraction, {
+      passive: true,
+    });
+    document.addEventListener("mousedown", handleInteraction, {
+      passive: true,
+    });
+    document.addEventListener("click", handleInteraction, {
+      passive: true,
+    });
+    document.addEventListener("keydown", handleInteraction);
+    document.addEventListener("wheel", handleInteraction, { passive: true });
+    document.addEventListener("scroll", handleInteraction, { passive: true });
+
+    // Mobile: retry on the first and subsequent touches.
+    document.addEventListener("touchstart", handleInteraction, {
+      passive: true,
+    });
+    document.addEventListener("touchmove", handleInteraction, {
+      passive: true,
+    });
+
+    return () => {
+      document.removeEventListener("pointermove", handleInteraction);
+      document.removeEventListener("pointerdown", handleInteraction);
+      document.removeEventListener("mousedown", handleInteraction);
+      document.removeEventListener("click", handleInteraction);
+      document.removeEventListener("keydown", handleInteraction);
+      document.removeEventListener("wheel", handleInteraction);
+      document.removeEventListener("scroll", handleInteraction);
+      document.removeEventListener("touchstart", handleInteraction);
+      document.removeEventListener("touchmove", handleInteraction);
+      audio.pause();
+      audio.currentTime = 0;
+    };
+  }, []);
+
+  /*
+   * =====================================================
    * POINTER INTERACTION
    * =====================================================
    */
@@ -198,6 +286,16 @@ export default function Preloader({ onComplete }: PreloaderProps) {
 
   function handleEnter() {
     if (isExiting) return;
+
+    // Permanently disable music retries as soon as ENTER is pressed.
+    hasEnteredRef.current = true;
+
+    const audio = audioRef.current;
+
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
 
     setIsExiting(true);
   }
@@ -326,6 +424,13 @@ export default function Preloader({ onComplete }: PreloaderProps) {
             text-[var(--foreground)]
           "
         >
+          <audio
+            ref={audioRef}
+            src="/media/audio/entry-music.mp3"
+            loop
+            preload="auto"
+          />
+
           {/* =================================================
               BACKGROUND VIDEO
           ================================================= */}
@@ -528,7 +633,7 @@ export default function Preloader({ onComplete }: PreloaderProps) {
                   fontFamily: "var(--font-sans)",
                 }}
               >
-                Editor
+                Video Editor
               </motion.span>
 
               {/* MICRO DIVIDER */}

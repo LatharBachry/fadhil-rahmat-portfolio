@@ -178,25 +178,6 @@ export default function BTS() {
             lg:px-12
           "
         >
-          {/* =================================================
-              SECTION LABEL
-          ================================================= */}
-
-          <p
-            className="
-              mb-4
-              font-[var(--font-sans)]
-              text-[9px]
-              font-medium
-              uppercase
-              leading-none
-              tracking-[0.20em]
-              text-[#FFFFFF]/70
-              sm:text-[10px]
-            "
-          >
-            Behind The Scenes
-          </p>
 
           {/* =================================================
               SECTION TITLE
